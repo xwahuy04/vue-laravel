@@ -28,7 +28,13 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Order::findOrFail($id);
-        return $order->loadMissing('orderDetail:order_id,price,item_id', 'orderDetail.item:id,name', 'waitress:id,name', 'cashier:id,name');
+        $orderShow = $order->loadMissing('orderDetail:order_id,price,item_id', 'orderDetail.item:id,name', 'waitress:id,name', 'cashier:id,name');
+         return response()->json([
+            'success' => true,
+            'data' => [
+                'orderShow' => $orderShow
+            ]
+        ], 200);
     }
 
     public function store(Request $request)
@@ -92,4 +98,53 @@ class OrderController extends Controller
             ]
         ], 200);
     }
+
+    public function setAsDone($id)
+    {
+        $order = Order::findOrFail($id);
+        if($order->status != "ordered")
+        {
+              return response()->json([
+                'success' => false,
+                'message' => 'order cannot set to done because the status is not ordered'
+            ], 403);
+        } 
+
+        $order->status = "done";
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status successfully changed to done',
+            'data' => [
+                'orderStatus' => $order
+            ]
+        ], 200);
+        
+    }
+
+    public function payment($id)
+    {
+        $order = Order::findOrFail($id);
+        if($order->status != "done")
+        {
+              return response()->json([
+                'success' => false,
+                'message' => 'order cannot set to payment because the status is not done'
+            ], 403);
+        } 
+
+        $order->status = "paid";
+        $order->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status successfully changed to paid',
+            'data' => [
+                'orderStatus' => $order
+            ]
+        ], 200);
+        
+    }
+    
 }

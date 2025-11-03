@@ -14,18 +14,11 @@ use App\Http\Controllers\Api\UserController;
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
-    Route::get('me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+    Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/create-order', function (Request $request) {
-        return 'create-order';
-    })->middleware('auth:sanctum', 'create-order');
-
-    Route::post('/finish-order', function (Request $request) {
-        return 'finihh-order';
-    })->middleware('auth:sanctum', 'finish-order');
-
     Route::post('/user', [UserController::class, 'store'])->middleware('create-user');
 
     Route::get('/item', [ItemController::class, 'index']);
@@ -35,5 +28,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/order', [OrderController::class, 'index']); 
     Route::post('/order', [OrderController::class, 'store'])->middleware('create-order');
     Route::get('/order/{id}', [OrderController::class, 'show'])->middleware('create-order');
+
+    Route::get('/order/{id}/set-as-done', [OrderController::class, 'setAsDone'])->middleware('finish-order'); 
+    Route::get('/order/{id}/payment', [OrderController::class, 'payment'])->middleware('pay-order'); 
+
 
 });
